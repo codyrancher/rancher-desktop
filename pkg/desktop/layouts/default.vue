@@ -316,20 +316,6 @@ export default {
     <DraggableZone ref="draggableZone" />
   </div>
 </template>
-<style lang="scss" scoped>
-  .side-nav {
-    display: flex;
-    flex-direction: column;
-    .nav {
-      flex: 1;
-      overflow-y: auto;
-    }
-  }
-
-  .flex {
-    display: flex;
-  }
-</style>
 <style lang="scss">
   .dashboard-root {
     display: flex;

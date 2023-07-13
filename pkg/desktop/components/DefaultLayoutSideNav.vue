@@ -533,12 +533,15 @@ export default {
 </template>
 
 <style lang="scss" scoped>
-.side-nav {
+  .side-nav {
     display: flex;
     flex-direction: column;
     .nav {
       flex: 1;
       overflow-y: auto;
     }
+  }
+  .flex {
+    display: flex;
   }
 </style>
