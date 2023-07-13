@@ -1,6 +1,6 @@
 
 <script>
-import { createDesktopRoute } from '../routing/utils';
+import { rootDesktopRoute, createDesktopRoute } from '../routing/utils';
 
 export default {
   name: 'DesktopSidebar',
@@ -10,12 +10,21 @@ export default {
       clusterDashboardLink: {
         name:   'c-cluster-explorer',
         params: { cluster: 'local' }
-      }
+      },
+      isSidepanelOpen: false
     };
   },
+  computed: {
+    isDesktopRoute() {
+      return this.$route.name.includes(rootDesktopRoute().name);
+    }
+  },
   methods: {
-    toggle() {
-      console.log('TOGGLE!');
+    toggleSidepanel() {
+      this.isSidepanelOpen = !this.isSidepanelOpen;
+    },
+    closeSidepanel() {
+      this.isSidepanelOpen = false;
     }
   },
 };
@@ -26,7 +35,7 @@ export default {
     <div class="fixed-panel">
       <div
         class="hamburger-menu mb-40 mt-10"
-        @click="toggle()"
+        @click="toggleSidepanel()"
       >
         <span class="line"></span>
         <span class="line"></span>
@@ -35,33 +44,48 @@ export default {
 
       <nuxt-link
         class="desktop-sidebar-link mb-20"
+        :class="{ 'link-active': isDesktopRoute }"
         :to="desktopLink"
+        @click.native="closeSidepanel()"
       >
-        <span>D</span>
+        <i class="icon icon-rancher-desktop" />
       </nuxt-link>
       <nuxt-link
         class="desktop-sidebar-link mb-20"
         :to="clusterDashboardLink"
+        @click.native="closeSidepanel()"
       >
-        <span>C</span>
+        <i class="icon icon-dashboard" />
       </nuxt-link>
     </div>
-    <div class="collapsible-panel">
-      <nuxt-link :to="desktopLink">
-        Rancher Desktop
-      </nuxt-link>
-      <nuxt-link :to="clusterDashboardLink">
-        Dashboard
-      </nuxt-link>
-    </div>
+    <transition name="slide">
+      <div
+        v-if="isSidepanelOpen"
+        class="collapsible-panel"
+      >
+        <nuxt-link
+          v-show="isSidepanelOpen"
+          :to="desktopLink"
+          @click.native="closeSidepanel()"
+        >
+          Rancher Desktop
+        </nuxt-link>
+        <nuxt-link
+          v-show="isSidepanelOpen"
+          :to="clusterDashboardLink"
+          @click.native="closeSidepanel()"
+        >
+          Dashboard
+        </nuxt-link>
+      </div>
+    </transition>
   </div>
 </template>
 
 <style lang="scss" scoped>
-  $sidebar-width: 50px;
+  $sidebar-width: 60px;
   $sidebar-padding: 10px;
   $sidebar-bg-color: #002c40;
-  $sidebar-collapsible-width: 100px;
 
   .desktop-sidebar {
     width: $sidebar-width;
@@ -77,11 +101,13 @@ export default {
       padding: 10px;
       background-color: $sidebar-bg-color;
       height: 100%;
+      z-index: 2;
 
       .hamburger-menu {
         display: block;
         height: 20px;
-        width: calc(#{$sidebar-width} - #{$sidebar-padding} * 2);
+        width: calc(#{$sidebar-width} - #{$sidebar-padding} * 3);
+        margin-left: calc(#{$sidebar-padding} / 2);
         cursor: pointer;
         display: flex;
         flex-direction: column;
@@ -97,32 +123,64 @@ export default {
       }
 
       .desktop-sidebar-link {
-        color: #FFFFFF;
-        border: 1px solid #FFFFFF;
+        border: 1px solid var(--header-border);
         width: calc(#{$sidebar-width} - #{$sidebar-padding} * 2);
         height: calc(#{$sidebar-width} - #{$sidebar-padding} * 2);
         border-radius: 5px;
         text-align: center;
         font-size: 16px;
 
-        span {
-          margin-top: 4px;
-          display: block;
+        i {
+          color: var(--header-border);
+          font-size: 26px;
+          margin-top: 6px;
+        }
+
+        &:hover {
+          color: #FFFFFF;
+          border-color: #FFFFFF;
+
+          i {
+            color: #FFFFFF;
+          }
+        }
+
+        &.nuxt-link-active, &.link-active  {
+          border-color: var(--primary) !important;
+          background-color: var(--primary)  !important;
+
+          i {
+            color: #FFFFFF  !important;
+          }
         }
       }
     }
 
     .collapsible-panel {
       background-color: $sidebar-bg-color;
-      padding: 85px 20px 0 0;
+      padding: 90px 20px 0 0;
+      box-shadow: 2px 0px 10px 0px rgba(0,0,0,0.6);
+      z-index: 1;
 
       a {
         display: block;
-        font-size: 16px;
+        font-size: 17px;
         color: #FFFFFF;
         white-space: nowrap;
-        margin-bottom: 32px;
+        margin-bottom: 39px;
       }
     }
+  }
+
+  .slide-enter-active,
+  .slide-leave-active
+  {
+      transition: transform 0.2s ease;
+  }
+
+  .slide-enter,
+  .slide-leave-to {
+      transform: translateX(-100%);
+      transition: all 0.2s ease-in 0s;
   }
 </style>
