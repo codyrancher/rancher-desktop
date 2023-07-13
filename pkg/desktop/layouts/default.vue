@@ -17,9 +17,6 @@ import AssignTo from '@shell/components/AssignTo';
 import Group from '@shell/components/nav/Group';
 import Inactivity from '@shell/components/Inactivity';
 import Brand from '@shell/mixins/brand';
-// import FixedBanner from '@shell/components/FixedBanner';
-// import AwsComplianceBanner from '@shell/components/AwsComplianceBanner';
-// import AzureWarning from '@shell/components/auth/AzureWarning';
 import DraggableZone from '@shell/components/DraggableZone';
 import {
   COUNT, SCHEMA, MANAGEMENT, UI, CATALOG, HCI
@@ -41,7 +38,8 @@ import { BLANK_CLUSTER } from '@shell/store';
 
 import DesktopSidebar from '../components/DesktopSidebar';
 import MainHeader from '../components/nav/Header';
-import { PRODUCT_NAME } from '../config/types';
+import DefaultLayoutSideNav from '../components/DefaultLayoutSideNav';
+import { rootDesktopRoute } from '../routing/utils';
 
 const SET_LOGIN_ACTION = 'set-as-login';
 
@@ -57,17 +55,15 @@ export default {
     PromptRestore,
     AssignTo,
     PromptModal,
-    MainHeader,
     ActionMenu,
     Group,
     GrowlManager,
     WindowManager,
-    // FixedBanner,
-    // AwsComplianceBanner,
-    // AzureWarning,
     DraggableZone,
     Inactivity,
-    DesktopSidebar
+    DesktopSidebar,
+    MainHeader,
+    DefaultLayoutSideNav,
   },
 
   mixins: [PageHeaderActions, Brand, BrowserTabVisibility],
@@ -99,7 +95,11 @@ export default {
     afterLoginRoute: mapPref(AFTER_LOGIN_ROUTE),
 
     isDesktopOfflineRoute() {
-      return this.$route.name.includes(`${ PRODUCT_NAME }-c-cluster`);
+      return this.$route.name.includes(rootDesktopRoute().name);
+    },
+
+    featureRancherDesktop() {
+      return this.$config.rancherEnv === 'desktop';
     },
 
     namespaces() {
@@ -635,10 +635,6 @@ export default {
 
 <template>
   <div class="dashboard-root">
-    <!-- <FixedBanner :header="true" />
-    <AwsComplianceBanner v-if="managementReady" />
-    <AzureWarning v-if="managementReady" /> -->
-
     <DesktopSidebar />
     <div
       v-if="managementReady"
@@ -648,6 +644,17 @@ export default {
       <MainHeader
         :disable-top-level-menu="true"
       />
+
+      <!-- <DefaultLayoutSideNav
+        v-if="clusterReady && !isDesktopOfflineRoute"
+        ref="sideNav"
+        :groups="groups"
+        :show-cluster-tools="showClusterTools"
+        :show-product-footer="showProductFooter"
+        :cluster-id="clusterId"
+        :is-single-product="isSingleProduct"
+      >
+      </DefaultLayoutSideNav> -->
 
       <nav
         v-if="clusterReady && !isDesktopOfflineRoute"
@@ -808,7 +815,6 @@ export default {
       </div>
     </div>
     <slot name="routerview"></slot>
-    <!-- <FixedBanner :footer="true" /> -->
     <GrowlManager />
     <Inactivity />
     <DraggableZone ref="draggableZone" />
