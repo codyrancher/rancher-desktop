@@ -23,17 +23,6 @@ import Group from '@shell/components/nav/Group';
 export default {
   name:       'DefaultLayoutSideNav',
   components: { Group },
-  props:      {
-    clusterId: {
-      type:    String,
-      default: () => ''
-    },
-    isSingleProduct: {
-      type:    Boolean,
-      Object,
-      default: () => false
-    }
-  },
   data() {
     return {
       groups:        [],
@@ -128,7 +117,7 @@ export default {
 
   computed: {
     ...mapState(['managementReady', 'clusterReady']),
-    ...mapGetters(['productId', 'isExplorer', 'isVirtualCluster']),
+    ...mapGetters(['productId', 'clusterId', 'currentProduct', 'isSingleProduct', 'namespaceMode', 'isExplorer', 'isVirtualCluster']),
     ...mapGetters({ locale: 'i18n/selectedLocaleLabel', availableLocales: 'i18n/availableLocales' }),
     ...mapGetters('type-map', ['activeProducts']),
 
@@ -141,7 +130,7 @@ export default {
     },
 
     supportLink() {
-      const product = this.$store.getters['currentProduct'];
+      const product = this.currentProduct;
 
       if (product?.supportRoute) {
         return { ...product.supportRoute, params: { ...product.supportRoute.params, cluster: this.clusterId } };
@@ -176,7 +165,7 @@ export default {
     },
 
     isVirtualProduct() {
-      return this.$store.getters['currentProduct'].name === HARVESTER;
+      return this.currentProduct.name === HARVESTER;
     },
 
     allNavLinks() {
@@ -189,7 +178,7 @@ export default {
 
     allSchemas() {
       const managementReady = this.managementReady;
-      const product = this.$store.getters['currentProduct'];
+      const product = this.currentProduct;
 
       if ( !managementReady || !product ) {
         return [];
@@ -200,7 +189,7 @@ export default {
 
     counts() {
       const managementReady = this.managementReady;
-      const product = this.$store.getters['currentProduct'];
+      const product = this.currentProduct;
 
       if ( !managementReady || !product ) {
         return {};
@@ -227,7 +216,6 @@ export default {
      * Fetch navigation by creating groups from product schemas
      */
     getGroups() {
-      console.error('GETTING GROUPS!');
       if ( this.gettingGroups ) {
         return;
       }
@@ -274,7 +262,6 @@ export default {
 
       replaceWith(this.groups, ...sortBy(out, ['weight:desc', 'label']));
 
-      console.error('MY GROUPS INFO', this.groups);
       this.gettingGroups = false;
     },
 
