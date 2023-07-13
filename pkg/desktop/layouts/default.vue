@@ -17,9 +17,9 @@ import AssignTo from '@shell/components/AssignTo';
 import Group from '@shell/components/nav/Group';
 import Inactivity from '@shell/components/Inactivity';
 import Brand from '@shell/mixins/brand';
-import FixedBanner from '@shell/components/FixedBanner';
-import AwsComplianceBanner from '@shell/components/AwsComplianceBanner';
-import AzureWarning from '@shell/components/auth/AzureWarning';
+// import FixedBanner from '@shell/components/FixedBanner';
+// import AwsComplianceBanner from '@shell/components/AwsComplianceBanner';
+// import AzureWarning from '@shell/components/auth/AzureWarning';
 import DraggableZone from '@shell/components/DraggableZone';
 import {
   COUNT, SCHEMA, MANAGEMENT, UI, CATALOG, HCI
@@ -38,27 +38,36 @@ import BrowserTabVisibility from '@shell/mixins/browser-tab-visibility';
 import { getClusterFromRoute, getProductFromRoute } from '@shell/middleware/authenticated';
 import { BOTTOM } from '@shell/utils/position';
 import { BLANK_CLUSTER } from '@shell/store';
-import DesktopHeader from '../components/nav/Header';
+
+import DesktopSidebar from '../components/DesktopSidebar';
+import MainHeader from '../components/nav/Header';
+import { PRODUCT_NAME } from '../config/types';
 
 const SET_LOGIN_ACTION = 'set-as-login';
 
 export default {
-
+  props: {
+    disableTopLevelMenu: {
+      type:    Boolean,
+      default: () => false
+    },
+  },
   components: {
     PromptRemove,
     PromptRestore,
     AssignTo,
     PromptModal,
-    DesktopHeader,
+    MainHeader,
     ActionMenu,
     Group,
     GrowlManager,
     WindowManager,
-    FixedBanner,
-    AwsComplianceBanner,
-    AzureWarning,
+    // FixedBanner,
+    // AwsComplianceBanner,
+    // AzureWarning,
     DraggableZone,
-    Inactivity
+    Inactivity,
+    DesktopSidebar
   },
 
   mixins: [PageHeaderActions, Brand, BrowserTabVisibility],
@@ -88,6 +97,10 @@ export default {
     ...mapGetters('type-map', ['activeProducts']),
 
     afterLoginRoute: mapPref(AFTER_LOGIN_ROUTE),
+
+    isDesktopOfflineRoute() {
+      return this.$route.name.includes(`${ PRODUCT_NAME }-c-cluster`);
+    },
 
     namespaces() {
       return this.$store.getters['activeNamespaceCache'];
@@ -622,17 +635,22 @@ export default {
 
 <template>
   <div class="dashboard-root">
-    <FixedBanner :header="true" />
+    <!-- <FixedBanner :header="true" />
     <AwsComplianceBanner v-if="managementReady" />
-    <AzureWarning v-if="managementReady" />
+    <AzureWarning v-if="managementReady" /> -->
+
+    <DesktopSidebar />
     <div
       v-if="managementReady"
       class="dashboard-content"
-      :class="{[pinClass]: true}"
+      :class="{[pinClass]: true, 'remove-nav-col': isDesktopOfflineRoute }"
     >
-      <DesktopHeader />
+      <MainHeader
+        :disable-top-level-menu="true"
+      />
+
       <nav
-        v-if="clusterReady"
+        v-if="clusterReady && !isDesktopOfflineRoute"
         class="side-nav"
       >
         <div class="nav">
@@ -789,7 +807,8 @@ export default {
         <WindowManager @draggable="draggable=$event" />
       </div>
     </div>
-    <FixedBanner :footer="true" />
+    <slot name="routerview"></slot>
+    <!-- <FixedBanner :footer="true" /> -->
     <GrowlManager />
     <Inactivity />
     <DraggableZone ref="draggableZone" />
@@ -812,11 +831,12 @@ export default {
 <style lang="scss">
   .dashboard-root {
     display: flex;
-    flex-direction: column;
+    flex-direction: row !important;
     height: 100vh;
   }
 
   .dashboard-content {
+    width: 100%;
     display: grid;
     position: relative;
     flex: 1 1 auto;
@@ -829,6 +849,14 @@ export default {
         "nav      main     wm";
       grid-template-rows:    var(--header-height) auto;
       grid-template-columns: var(--nav-width)     auto var(--wm-width, 0px);
+
+      &.remove-nav-col {
+        grid-template-areas:
+          "header  header"
+          "main     wm";
+        grid-template-rows:    var(--header-height) auto;
+        grid-template-columns: auto var(--wm-width, 0px);
+      }
     }
 
     &.pin-bottom {
@@ -838,6 +866,15 @@ export default {
         "wm         wm";
       grid-template-rows:    var(--header-height) auto  var(--wm-height, 0px);
       grid-template-columns: var(--nav-width)     auto;
+
+      &.remove-nav-col {
+        grid-template-areas:
+          "header"
+          "main"
+          "wm";
+        grid-template-rows:    var(--header-height) auto  var(--wm-height, 0px);
+        grid-template-columns: auto;
+      }
     }
 
     &.pin-left {
@@ -846,6 +883,14 @@ export default {
         "wm       nav     main";
       grid-template-rows:    var(--header-height) auto;
       grid-template-columns: var(--wm-width, 0px) var(--nav-width) auto;
+
+      &.remove-nav-col {
+        grid-template-areas:
+          "header header"
+          "wm       main";
+        grid-template-rows:    var(--header-height) auto;
+        grid-template-columns: var(--wm-width, 0px) auto;
+      }
     }
 
     > HEADER {

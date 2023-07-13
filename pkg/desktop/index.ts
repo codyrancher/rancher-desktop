@@ -1,6 +1,12 @@
 import { importTypes } from '@rancher/auto-import';
 import { IPlugin } from '@shell/core/types';
-import Root from './components/Root.vue';
+import routing from './routing/routing';
+
+// fix missing directives on dashboard v2.7.2
+// doesn't seem to have any side effect while runnning on v2.7-head
+// where the directive is already present
+import '@shell/plugins/clean-tooltip-directive';
+import '@shell/plugins/clean-html-directive';
 
 // Init the package
 export default function(plugin: IPlugin): void {
@@ -13,11 +19,15 @@ export default function(plugin: IPlugin): void {
   // Load a product
   plugin.addProduct(require('./product'));
 
-  plugin.addRoutes([
-    {
-      name:      `root`,
-      path:      `/`,
-      component: Root,
-    }
-  ]);
+  // Add Vue Routes
+  plugin.addRoutes(routing);
+
+  // plugin.addRoutes([
+  //   {
+  //     name:      `root`,
+  //     path:      `/`,
+  //     component: Root,
+  //   }
+  // ]);
 }
+
