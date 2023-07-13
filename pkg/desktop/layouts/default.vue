@@ -90,6 +90,7 @@ export default {
     ...mapState(['managementReady', 'clusterReady']),
     ...mapGetters(['productId', 'clusterId', 'namespaceMode', 'isExplorer', 'currentProduct', 'isSingleProduct', 'isRancherInHarvester', 'isVirtualCluster']),
     ...mapGetters({ locale: 'i18n/selectedLocaleLabel', availableLocales: 'i18n/availableLocales' }),
+    // can be removed!!! ***
     ...mapGetters('type-map', ['activeProducts']),
 
     afterLoginRoute: mapPref(AFTER_LOGIN_ROUTE),
@@ -102,11 +103,13 @@ export default {
       return this.$config.rancherEnv === 'desktop';
     },
 
+    // can be removed!!! ***
     namespaces() {
       return this.$store.getters['activeNamespaceCache'];
     },
 
     themeShortcut: mapPref(THEME_SHORTCUT),
+    // can be removed!!! ***
     favoriteTypes: mapPref(FAVORITE_TYPES),
 
     pageActions() {
@@ -130,6 +133,7 @@ export default {
       return pageActions;
     },
 
+    // can be removed!!! ***
     allSchemas() {
       const managementReady = this.managementReady;
       const product = this.$store.getters['currentProduct'];
@@ -141,6 +145,7 @@ export default {
       return this.$store.getters[`${ product.inStore }/all`](SCHEMA);
     },
 
+    // can be removed!!! ***
     allNavLinks() {
       if ( !this.clusterId || !this.$store.getters['cluster/schemaFor'](UI.NAV_LINK) ) {
         return [];
@@ -149,6 +154,7 @@ export default {
       return this.$store.getters['cluster/all'](UI.NAV_LINK);
     },
 
+    // can be removed!!! ***
     counts() {
       const managementReady = this.managementReady;
       const product = this.$store.getters['currentProduct'];
@@ -169,12 +175,14 @@ export default {
       return {};
     },
 
+    // can be removed!!! ***
     showClusterTools() {
       return this.isExplorer &&
              this.$store.getters['cluster/canList'](CATALOG.CLUSTER_REPO) &&
              this.$store.getters['cluster/canList'](CATALOG.APP);
     },
 
+    // can be removed!!! ***
     displayVersion() {
       if (this.isSingleProduct?.getVersionInfo) {
         return this.isSingleProduct?.getVersionInfo(this.$store);
@@ -184,14 +192,17 @@ export default {
       return displayVersion;
     },
 
+    // can be removed!!! ***
     singleProductAbout() {
       return this.isSingleProduct?.aboutPage;
     },
 
+    // can be removed!!! ***
     harvesterVersion() {
       return this.$store.getters['cluster/byId'](HCI.SETTING, 'server-version')?.value || 'unknown';
     },
 
+    // can be removed!!! ***
     showProductFooter() {
       if (this.isVirtualProduct) {
         return true;
@@ -200,10 +211,12 @@ export default {
       }
     },
 
+    // can be removed!!! ***
     isVirtualProduct() {
       return this.$store.getters['currentProduct'].name === HARVESTER;
     },
 
+    // can be removed!!! ***
     supportLink() {
       const product = this.$store.getters['currentProduct'];
 
@@ -214,10 +227,12 @@ export default {
       return { name: `c-cluster-${ product?.name }-support` };
     },
 
+    // this stays...
     unmatchedRoute() {
       return !this.$route?.matched?.length;
     },
 
+    // this stays...
     /**
      * When navigation involves unloading one cluster and loading another, clusterReady toggles from true->false->true in middleware (before new route content renders)
      * Prevent rendering "outlet" until the route changes to avoid re-rendering old route content after its cluster is unloaded
@@ -230,6 +245,7 @@ export default {
         this.clusterId === getClusterFromRoute(this.$route) && routeReady;
     },
 
+    // this stays...
     pinClass() {
       return `pin-${ this.wmPin }`;
     },
@@ -387,12 +403,14 @@ export default {
       };
     },
 
+    // can be removed!!! ***
     collapseAll() {
       this.$refs.groups.forEach((grp) => {
         grp.isExpanded = false;
       });
     },
 
+    // can be removed!!! ***
     getProductsGroups(out, loadProducts, namespaceMode, namespaces, productMap) {
       const clusterId = this.$store.getters['clusterId'];
       const currentType = this.$route.params.resource || '';
@@ -434,6 +452,7 @@ export default {
       }
     },
 
+    // can be removed!!! ***
     getExplorerGroups(out) {
       if ( this.isExplorer ) {
         const allNavLinks = this.allNavLinks;
@@ -502,6 +521,7 @@ export default {
       }
     },
 
+    // can be removed!!! ***
     /**
      * Fetch navigation by creating groups from product schemas
      */
@@ -554,14 +574,17 @@ export default {
       this.gettingGroups = false;
     },
 
+    // this stays...
     toggleNoneLocale() {
       this.$store.dispatch('i18n/toggleNone');
     },
 
+    // this stays...
     toggleTheme() {
       this.$store.dispatch('prefs/toggleTheme');
     },
 
+    // can be removed!!! ***
     groupSelected(selected) {
       this.$refs.groups.forEach((grp) => {
         if (grp.canCollapse) {
@@ -570,12 +593,14 @@ export default {
       });
     },
 
+    // this stays...
     wheresMyDebugger() {
       // vue-shortkey is preventing F8 from passing through to the browser... this works for now.
       // eslint-disable-next-line no-debugger
       debugger;
     },
 
+    // this stays...
     async toggleShell() {
       const clusterId = this.$route.params.cluster;
 
@@ -595,6 +620,7 @@ export default {
       cluster.openShell();
     },
 
+    // can be removed!!! ***
     syncNav() {
       const refs = this.$refs.groups;
 
@@ -626,6 +652,7 @@ export default {
       }
     },
 
+    // can be removed!!! ***
     switchLocale(locale) {
       this.$store.dispatch('i18n/switchTo', locale);
     },
@@ -645,18 +672,14 @@ export default {
         :disable-top-level-menu="true"
       />
 
-      <!-- <DefaultLayoutSideNav
+      <DefaultLayoutSideNav
         v-if="clusterReady && !isDesktopOfflineRoute"
-        ref="sideNav"
-        :groups="groups"
-        :show-cluster-tools="showClusterTools"
-        :show-product-footer="showProductFooter"
         :cluster-id="clusterId"
         :is-single-product="isSingleProduct"
       >
-      </DefaultLayoutSideNav> -->
+      </DefaultLayoutSideNav>
 
-      <nav
+      <!-- <nav
         v-if="clusterReady && !isDesktopOfflineRoute"
         class="side-nav"
       >
@@ -759,7 +782,7 @@ export default {
             </span>
           </template>
         </div>
-      </nav>
+      </nav> -->
       <main
         v-if="clusterAndRouteReady"
         class="main-layout"
