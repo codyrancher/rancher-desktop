@@ -21,13 +21,4 @@ export default function(plugin: IPlugin): void {
 
   // Add Vue Routes
   plugin.addRoutes(routing);
-
-  // plugin.addRoutes([
-  //   {
-  //     name:      `root`,
-  //     path:      `/`,
-  //     component: Root,
-  //   }
-  // ]);
 }
-
