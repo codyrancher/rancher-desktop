@@ -14,9 +14,10 @@ import { allHash } from '@shell/utils/promise';
 import { ActionLocation, ExtensionPoint } from '@shell/core/types';
 import { getApplicableExtensionEnhancements } from '@shell/core/plugin-helpers';
 import IconOrSvg from '@shell/components/IconOrSvg';
-import Jump from '@shell/components/nav/Jump';
 import NamespaceFilter from '@shell/components/nav/NamespaceFilter';
 import WorkspaceSwitcher from '@shell/components/nav/WorkspaceSwitcher';
+import TopLevelMenu from '@shell/components/nav/TopLevelMenu';
+import Jump from '@shell/components/nav/Jump';
 
 const PAGE_HEADER_ACTION = 'page-action';
 
@@ -26,6 +27,7 @@ export default {
     NamespaceFilter,
     WorkspaceSwitcher,
     Import,
+    TopLevelMenu,
     Jump,
     BrandImage,
     ClusterBadge,
@@ -37,7 +39,11 @@ export default {
     simple: {
       type:    Boolean,
       default: false
-    }
+    },
+    disableTopLevelMenu: {
+      type:    Boolean,
+      default: () => false
+    },
   },
 
   data() {
@@ -334,6 +340,23 @@ export default {
   <header
     ref="header"
   >
+    <div v-if="!disableTopLevelMenu">
+      <TopLevelMenu v-if="isRancherInHarvester || isMultiCluster || !isSingleProduct" />
+    </div>
+    <div
+      class="menu-spacer"
+      :class="{'isSingleProduct': isSingleProduct }"
+    >
+      <n-link
+        v-if="isSingleProduct && !isRancherInHarvester"
+        :to="singleProductLogoRoute"
+      >
+        <img
+          class="side-menu-logo"
+          :src="isSingleProduct.logo"
+        >
+      </n-link>
+    </div>
     <div
       v-if="!simple"
       ref="product"
@@ -594,6 +617,89 @@ export default {
                   <div class="menu-separator-line" />
                 </div>
               </li>
+            </ul>
+          </template>
+        </v-popover>
+      </div>
+
+      <div class="header-spacer" />
+      <div
+        v-if="showUserMenu"
+        class="user user-menu"
+        data-testid="nav_header_showUserMenu"
+        tabindex="0"
+        @blur="showMenu(false)"
+        @click="showMenu(true)"
+        @focus.capture="showMenu(true)"
+      >
+        <v-popover
+          ref="popover"
+          placement="bottom-end"
+          offset="-10"
+          trigger="manual"
+          :delay="{show: 0, hide: 0}"
+          :popper-options="{modifiers: { flip: { enabled: false } } }"
+          :container="false"
+        >
+          <div class="user-image text-right hand">
+            <img
+              v-if="principal && principal.avatarSrc"
+              :src="principal.avatarSrc"
+              :class="{'avatar-round': principal.roundAvatar}"
+              width="36"
+              height="36"
+            >
+            <i
+              v-else
+              class="icon icon-user icon-3x avatar"
+            />
+          </div>
+          <template
+            slot="popover"
+            class="user-menu"
+          >
+            <ul
+              class="list-unstyled dropdown"
+              data-testid="user-menu-dropdown"
+              @click.stop="showMenu(false)"
+            >
+              <li
+                v-if="authEnabled"
+                class="user-info"
+              >
+                <div class="user-name">
+                  <i class="icon icon-lg icon-user" /> {{ principal.loginName }}
+                </div>
+                <div class="text-small pt-5 pb-5">
+                  <template v-if="principal.loginName !== principal.name">
+                    {{ principal.name }}
+                  </template>
+                </div>
+              </li>
+              <nuxt-link
+                v-if="showPreferencesLink"
+                tag="li"
+                :to="{name: 'prefs'}"
+                class="user-menu-item"
+              >
+                <a>{{ t('nav.userMenu.preferences') }}</a>
+              </nuxt-link>
+              <nuxt-link
+                v-if="showAccountAndApiKeyLink"
+                tag="li"
+                :to="{name: 'account'}"
+                class="user-menu-item"
+              >
+                <a>{{ t('nav.userMenu.accountAndKeys', {}, true) }}</a>
+              </nuxt-link>
+              <nuxt-link
+                v-if="authEnabled"
+                tag="li"
+                :to="{name: 'auth-logout', query: { [LOGGED_OUT]: true }}"
+                class="user-menu-item"
+              >
+                <a @blur="showMenu(false)">{{ t('nav.userMenu.logOut') }}</a>
+              </nuxt-link>
             </ul>
           </template>
         </v-popover>

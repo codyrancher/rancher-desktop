@@ -1,13 +1,14 @@
-import { IPlugin } from '@shell/core/types';
+import { createDesktopRoute } from './routing/utils';
 
-export function init($plugin: IPlugin, store: any) {
-  const YOUR_PRODUCT_NAME = 'myProductName';
-
-  const { product } = $plugin.DSL(store, YOUR_PRODUCT_NAME);
+export function init($plugin: any, store: any) {
+  const { product } = $plugin.DSL(store, $plugin.name);
 
   product({
-    icon:    'gear',
-    inStore: 'management',
-    weight:  100
+    inStore:             'management',
+    icon:                'gear',
+    removable:           false,
+    showClusterSwitcher: false,
+    weight:              100,
+    to:                  createDesktopRoute('general')
   });
 }
