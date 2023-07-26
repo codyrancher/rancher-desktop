@@ -22,13 +22,13 @@ import PageHeaderActions from '@shell/mixins/page-actions';
 import BrowserTabVisibility from '@shell/mixins/browser-tab-visibility';
 import { getClusterFromRoute, getProductFromRoute } from '@shell/middleware/authenticated';
 import { BOTTOM } from '@shell/utils/position';
-import { BLANK_CLUSTER } from '@shell/store';
 
 import DesktopSidebar from '../components/DesktopSidebar';
 import MainHeader from '../components/nav/Header';
 import DefaultLayoutSideNav from '../components/DefaultLayoutSideNav';
 import { rootDesktopRoute } from '../routing/utils';
 
+const BLANK_CLUSTER = '_';
 const SET_LOGIN_ACTION = 'set-as-login';
 
 export default {
